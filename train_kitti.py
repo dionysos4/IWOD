@@ -1,4 +1,4 @@
-from dataset import kitti_multiview_detection_all as kmd
+from dataset import kitti_multiview_detection as kmd
 import torch
 import torchvision
 from utils.transforms import *
@@ -34,6 +34,7 @@ def main():
     seed_everything(1, workers=True)
     if os.path.exists(os.path.join(cfg["log_root_dir"], cfg["log_dir"], cfg["log_version"])):
         raise ValueError("Version already exists. Change version in config file")
+
     
 
     # set train transforms based on config file
