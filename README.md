@@ -1,7 +1,5 @@
 # A Deep Network for Object Detection on Inland Waters
 
-The code will be available soon.
-
 
 ## KITTI Dataset Preparation (Multiview & Unrectified)
 
@@ -35,14 +33,23 @@ Finally, you must manually download the official labels and LiDAR data to comple
 3. Extract and place these files into your `multiview_kitti` folder.
 
 
+### KITTI Training
 
-# Installation
+To train the KITTI models, choose and customize a configuration file from the `config` folder.  
+Then, provide the path to this configuration file and run:
+```python
+python train_kitti.py --config_path path/to/your/config.yaml
+```
+
+## Installation
+```bash
 conda create --name iwod python==3.11
 conda activate iwod
 conda install -c conda-forge uv
-pip3 install torch torchvision --index-url https://download.pytorch.org/whl/cu126
-
+uv pip install torch==2.5.1 torchvision==0.20.1 torchaudio==2.5.1 --index-url https://download.pytorch.org/whl/cu118
+conda install anaconda::cudatoolkit==11.8.0
+conda install -c conda-forge gcc_linux-64=11 gxx_linux-64=11
 cd iou_utils/cuda_op
-(evtl. export TORCH_CUDA_ARCH_LIST="8.6")
 uv pip install --no-build-isolation .
-uv pip install pytorch-lightning
+uv pip install pytorch-lightning lightning scipy matplotlib tensorboard
+```

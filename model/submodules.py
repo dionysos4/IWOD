@@ -22,7 +22,8 @@ class PSCoder(torch.nn.Module):
     def __init__(self,
                  angle_version: str,
                  num_step: int = 3,
-                 thr_mod: float = 0.47):
+                 thr_mod: float = 0.47,
+                 device = "cpu"):
         super().__init__()
         self.angle_version = angle_version
         assert angle_version in ['le90']  # Ensure valid angle version
@@ -31,15 +32,12 @@ class PSCoder(torch.nn.Module):
         self.encode_size = self.num_step  # No dual frequency, just num_step
 
         # Calculate sin and cos coefficients for phase-shifting
-        coef_sin_cpu = torch.tensor(
-            [torch.sin(2 * k * torch.pi / torch.tensor([self.num_step])) for k in range(self.num_step)]
+        self.coef_sin = torch.tensor(
+            [torch.sin(2 * k * torch.pi / torch.tensor([self.num_step], device=device)) for k in range(self.num_step)], device=device
         )
-        coef_cos_cpu = torch.tensor(
-            [torch.cos(2 * k * torch.pi / torch.tensor([self.num_step])) for k in range(self.num_step)]
+        self.coef_cos = torch.tensor(
+            [torch.cos(2 * k * torch.pi / torch.tensor([self.num_step], device=device)) for k in range(self.num_step)], device=device
         )
-
-        self.register_buffer("coef_sin", coef_sin_cpu)
-        self.register_buffer("coef_cos", coef_cos_cpu)
 
 
     def encode(self, angle_targets: torch.Tensor) -> torch.Tensor:
@@ -78,9 +76,6 @@ class PSCoder(torch.nn.Module):
                 Shape (num_anchors * H * W, 1) when keepdim is True,
                 (num_anchors * H * W) otherwise.
         """
-        # Move coefficients to same device as input
-        self.coef_sin = self.coef_sin
-        self.coef_cos = self.coef_cos
 
         # Calculate phase using sin and cos components
         phase_sin = torch.sum(angle_preds * self.coef_sin, dim=-1, keepdim=keepdim)

@@ -1,0 +1,89 @@
+# DATASET and DATALOADER
+data_directory: "/mnt/deepdoubt/dennis_data/mulitview_kitti"
+train_file: "/home/dennis/git_repos/IWOD/config/kitti_config/train.txt"
+val_file: "/home/dennis/git_repos/IWOD/config/kitti_config/val_val.txt"
+workers: 16
+ref_cam: "cam2"
+cameras: {"cam2": True, "cam0": True, "cam3": False, "cam1": False}
+rgb2grey: False
+p_horizontal_flip: 0.5
+mean_ref: [0.3626554, 0.37894624, 0.36036935]
+std_ref: [0.3009058, 0.3052456, 0.3065923]
+mean_target: [[0.32094904387990636]]
+std_target: [[0.25607755010778255]]
+pad_image_h: 416
+pad_image_w: 1344
+crop_image_h: 416
+crop_image_w: 1280
+
+# OPTIMIZATION
+lr: 0.0003
+weight_decay: 0.1
+batch_size: 2
+
+# LOGGER
+log_root_dir: "/mnt/deepdoubt/dennis_data/logging"
+log_dir: "kitti_stereo"
+log_version: "50000"
+
+# LOSS PARAMETERS
+beta1: 1
+beta2: 0.1
+beta3: 1
+beta4: 1
+beta5: 1
+
+# MODEL_PARAMS
+mindepth: 2
+maxdepth: 40.4
+depth_sampling: 0.2
+group_norm: True
+# DEPTH RANGES
+z_min: 2.0
+z_max: 40.4
+y_min: 3.0
+y_max: -1.0
+x_min: -30.4
+x_max: 30.4
+z_size: -0.2
+y_size: -0.2
+x_size: 0.2
+
+# TRAINING
+accelorator: "gpu"
+num_nodes: 1
+gpu_devices: [2,3]
+strategy: "ddp"
+precision: "32"
+max_epochs: -1
+gradient_clip_algorithm: "norm"
+gradient_clip_value: 5.0
+num_sanity_val_steps: 0
+early_stop_min_delta: 0.0
+early_stop_patience: 20
+early_stop_mode: "min"
+log_every_n_stepss: 0
+
+# FUSION_LAYERS
+fusion: False
+
+# TRAIN FEATURE EXTRACTOR
+load_weights: False
+checkpoint_path_fe: "/mnt/deepdoubt/dennis_data/logging/kitti_stereo/700/kitti-stereo-epoch=92-train_loss=0.00.ckpt"
+
+is_lcod: False
+
+# PRPOABILITY FOR BLACK INPUT IMAGE
+p_zero_out: 0.5
+# PRPOABILITY FOR NOISY INPUT IMAGE + NOISE PARAMETER
+p_noise: 0.5
+noise_sigma: 0.3
+# PRPOABILITY FOR RANDOM IMAGE
+p_random_img: 0.5
+
+
+# Camera failures
+thermal_noise: False
+black_img: False
+freeze: False
+all_failures: False

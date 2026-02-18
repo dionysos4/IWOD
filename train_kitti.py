@@ -11,6 +11,7 @@ from lightning.pytorch.callbacks import EarlyStopping
 import os
 from model.lightning_module import LitPSDepth
 import yaml
+import argparse
 
 
 # Function to load yaml configuration file
@@ -21,32 +22,53 @@ def load_config(config_file):
 
 
 def main():
-    # folder to load config file
-    CONFIG_PATH = "/home/dennis/git_repos/multiview_detection_v3/config/train_cam2_cam0.yaml"
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--config_path", help="Path to the config file", default="/home/dennis/git_repos/IWOD/config/train_cam2_cam0.yaml")
+    args = parser.parse_args()
+    CONFIG_PATH = args.config_path
+
+    print(CONFIG_PATH)
+
     cfg = load_config(CONFIG_PATH)
 
     seed_everything(1, workers=True)
     if os.path.exists(os.path.join(cfg["log_root_dir"], cfg["log_dir"], cfg["log_version"])):
         raise ValueError("Version already exists. Change version in config file")
+    
 
-    transform_train=torchvision.transforms.Compose([
-                                    #torchvision.transforms.RandomApply([AddThermalNoise(cfg)], p=cfg["p_noise"]),
-                                    #torchvision.transforms.RandomApply([ImageFreeze(cfg)], p=cfg["p_random_img"]),
-                                    torchvision.transforms.RandomApply([HorizontalFlipUnrectWithoutCamFlip()], p=cfg["p_horizontal_flip"]),
-                                    Normalize(mean_ref=cfg["mean_ref"],
+    # set train transforms based on config file
+    train_transforms_list = []
+    if cfg["thermal_noise"]:
+        train_transforms_list.append(torchvision.transforms.RandomApply([AddThermalNoise(cfg)], p=cfg["p_noise"]))
+    if cfg["black_img"]:
+        train_transforms_list.append(torchvision.transforms.RandomApply([ZeroImage()], p=cfg["p_zero_out"]))
+    if cfg["freeze"]:
+        train_transforms_list.append(torchvision.transforms.RandomApply([ImageFreeze(cfg)], p=cfg["p_random_img"]))
+    if cfg["all_failures"]:
+        train_transforms_list.append(torchvision.transforms.RandomApply([
+                                        torchvision.transforms.RandomChoice([
+                                            AddThermalNoise(cfg),
+                                            ImageFreeze(cfg),
+                                            ZeroImage()
+                                        ])
+                                    ], p=cfg["p_random_img"]))
+    train_transforms_list.append(torchvision.transforms.RandomApply([HorizontalFlipUnrectWithoutCamFlip()], p=cfg["p_horizontal_flip"]))
+    train_transforms_list.append(Normalize(mean_ref=cfg["mean_ref"],
                                             std_ref=cfg["std_ref"],
                                             means=cfg["mean_target"],
-                                            stds=cfg["std_target"]),
-                                            PadImages((cfg["pad_image_h"], cfg["pad_image_w"])),
-                                            CropImages((cfg["crop_image_h"], cfg["crop_image_w"])),
-                                            #torchvision.transforms.RandomApply([ZeroImage()], p=cfg["p_zero_out"]),
-                                            ToTensor()])
+                                            stds=cfg["std_target"]))
+    train_transforms_list.append(PadImages((cfg["pad_image_h"], cfg["pad_image_w"])))
+    train_transforms_list.append(CropImages((cfg["crop_image_h"], cfg["crop_image_w"])))
+    train_transforms_list.append(ToTensor())
+
+    transform_train=torchvision.transforms.Compose(train_transforms_list)
+
 
     train_dataset = kmd.KittiMultiviewDataset(cfg["data_directory"],
                                                 training="train",
                                                 transform=transform_train,
-                                                cameras=cfg["cameras"],
-                                                grey=cfg["rgb2grey"])
+                                                cfg=cfg,
+                                                cameras=cfg["cameras"])
     
 
     transform_val = torchvision.transforms.Compose([Normalize(mean_ref=cfg["mean_ref"],
@@ -61,8 +83,8 @@ def main():
     val_dataset = kmd.KittiMultiviewDataset(cfg["data_directory"],
                                                 training="valid",
                                                 transform=transform_val,
-                                                cameras=cfg["cameras"],
-                                                grey=cfg["rgb2grey"])
+                                                cfg=cfg,
+                                                cameras=cfg["cameras"])
     
     dataloader_train = DataLoader(train_dataset, batch_size=cfg["batch_size"], shuffle=True, num_workers=cfg["workers"])
     dataloader_val = DataLoader(val_dataset, batch_size=cfg["batch_size"], shuffle=False, num_workers=cfg["workers"])

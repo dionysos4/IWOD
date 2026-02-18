@@ -6,15 +6,15 @@ from typing import Optional
 from torch import Tensor
 from torchvision.ops import sigmoid_focal_loss
 from typing import List
-from model.dps_submodules_dsgn import PSCoder
+from model.submodules import PSCoder
 from iou_utils.oriented_iou_loss import cal_diou
 
 
 def compute_locations_bev(Z_MIN, Z_MAX, VOXEL_Z_SIZE, X_MIN, X_MAX, VOXEL_X_SIZE, device):
     shifts_z = torch.arange(Z_MIN, Z_MAX - np.sign(VOXEL_Z_SIZE) * 1e-10, step=VOXEL_Z_SIZE, 
-        dtype=torch.float32).to(device) + VOXEL_Z_SIZE / 2.
+        dtype=torch.float32, device=device) + VOXEL_Z_SIZE / 2.
     shifts_x = torch.arange(X_MIN, X_MAX - np.sign(VOXEL_X_SIZE) * 1e-10, step=VOXEL_X_SIZE,
-        dtype=torch.float32).to(device) + VOXEL_X_SIZE / 2.
+        dtype=torch.float32, device=device) + VOXEL_X_SIZE / 2.
     shifts_z, shifts_x = torch.meshgrid(shifts_z, shifts_x)
     locations_bev = torch.stack([shifts_x, shifts_z], dim=-1)
     locations_bev = locations_bev.reshape(-1, 2)
@@ -194,7 +194,7 @@ class SimpleScoreLoss(torch.nn.modules.loss._WeightedLoss):
 
     
     def forward(self, score, bbox_cent, bbox_dim, centerness, angle, target, K_l, x_feature_scale):
-        gt_boxes = target.to(dtype=score.dtype)
+        gt_boxes = target
 
         locations_bev = compute_locations_bev(self.Z_MAX, self.Z_MIN, self.VOXEL_Z_SIZE, 
             self.X_MIN, self.X_MAX, self.VOXEL_X_SIZE, score.device)
@@ -216,7 +216,7 @@ class SimpleScoreLoss(torch.nn.modules.loss._WeightedLoss):
 
         batch_size = score.shape[0]
 
-        ps_coder = PSCoder("le90", num_step=4)
+        ps_coder = PSCoder("le90", num_step=4, device=score.device)
 
         for batch in range(batch_size):
             N_pos = 0
