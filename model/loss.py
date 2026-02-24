@@ -194,7 +194,7 @@ class SimpleScoreLoss(torch.nn.modules.loss._WeightedLoss):
 
     
     def forward(self, score, bbox_cent, bbox_dim, centerness, angle, target, K_l, x_feature_scale):
-        gt_boxes = target
+        gt_boxes = target.to(dtype=score.dtype)
 
         locations_bev = compute_locations_bev(self.Z_MAX, self.Z_MIN, self.VOXEL_Z_SIZE, 
             self.X_MIN, self.X_MAX, self.VOXEL_X_SIZE, score.device)

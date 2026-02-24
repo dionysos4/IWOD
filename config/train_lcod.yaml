@@ -1,0 +1,78 @@
+# DATASET and DATALOADER
+data_directory: "/mnt/deepdoubt/dennis_data/extracted_dataset_factor_2_new_split"
+workers: 16
+ref_cam: "cam2"
+cameras: {"cam2": True, "cam0": False, "cam3": True, "cam1": False}
+rgb2grey: False
+p_horizontal_flip: 0.5
+mean_ref: [0.29827172, 0.45383528, 0.54478157]
+std_ref: [0.1065989, 0.12818466, 0.14825507]
+mean_target: [[0.30601525, 0.45267722, 0.53419006]]
+std_target: [[0.1101877, 0.13244034, 0.14781739]]
+pad_image_h: 608
+pad_image_w: 960
+crop_image_h: 416
+crop_image_w: 1280
+
+# OPTIMIZATION
+lr: 0.0003
+weight_decay: 0.1
+batch_size: 1
+
+# LOGGER
+log_root_dir: "/mnt/deepdoubt/dennis_data/logging"
+log_dir: "lcod"
+log_version: "50200"
+
+# LOSS PARAMETERS
+beta1: 0.3
+beta2: 0.1
+beta3: 1
+beta4: 1
+beta5: 1
+
+# MODEL_PARAMS
+mindepth: 24
+maxdepth: 248
+depth_sampling: 0.5
+group_norm: True
+# DEPTH RANGES
+z_min: 24
+z_max: 248
+y_min: 1
+y_max: -3
+x_min: -105
+x_max: 105
+z_size: -0.5
+y_size: -0.2
+x_size: 0.25
+
+# TRAINING
+accelorator: "gpu"
+num_nodes: 1
+gpu_devices: [2,3]
+strategy: "ddp"
+precision: "32"
+max_epochs: -1
+gradient_clip_algorithm: "norm"
+gradient_clip_value: 5.0
+num_sanity_val_steps: 0
+early_stop_min_delta: 0.0
+early_stop_patience: 20
+early_stop_mode: "min"
+log_every_n_steps: 0
+
+# FUSION_LAYERS
+fusion: False
+
+# TRAIN FEATURE EXTRACTOR
+load_weights: False
+checkpoint_path_fe: "/mnt/deepdoubt/dennis_data/logging/kitti_stereo/1012/kitti-stereo-epoch=120-train_loss=0.00.ckpt"
+
+# IS LCOD
+is_lcod: True
+
+depth_type: "lidar"
+
+# hourglass
+using_hourglass: False
