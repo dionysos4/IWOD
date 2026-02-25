@@ -2,6 +2,7 @@
 data_directory: "/mnt/deepdoubt/dennis_data/mulitview_kitti"
 train_file: "/home/dennis/git_repos/IWOD/config/kitti_config/train.txt"
 val_file: "/home/dennis/git_repos/IWOD/config/kitti_config/val.txt"
+abs_repo_path: "/home/dennis/git_repos/IWOD"
 workers: 16
 ref_cam: "cam2"
 cameras: {"cam2": True, "cam0": False, "cam3": True, "cam1": False}

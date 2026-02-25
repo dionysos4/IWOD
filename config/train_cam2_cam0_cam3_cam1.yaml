@@ -2,7 +2,8 @@
 data_directory: "/mnt/deepdoubt/dennis_data/mulitview_kitti"
 train_file: "/home/dennis/git_repos/IWOD/config/kitti_config/train.txt"
 val_file: "/home/dennis/git_repos/IWOD/config/kitti_config/val_val.txt"
-val_test_file: /home/dennis/git_repos/multiview_detection_v3/eval_detection/eval_files/split/val_test_split.txt
+val_test_file: "/home/dennis/git_repos/multiview_detection_v3/eval_detection/eval_files/split/val_test_split.txt"
+abs_repo_path: "/home/dennis/git_repos/IWOD"
 workers: 16
 ref_cam: "cam2"
 cameras: {"cam2": True, "cam0": True, "cam3": True, "cam1": True}

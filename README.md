@@ -15,7 +15,7 @@ python hdf5_extractor.py --dataset_dir="<path to Lake_Constance_Obstacle_Detecti
                         --split_file_path <absolute path to ../config/lcod_config>
 ```
 
-### Inland Water Training
+## Inland Water Training
 
 To train the Lake Constance model, choose and customize a configuration file from the `config` folder.
 Then, provide the path to this configuration file and run:
@@ -56,7 +56,7 @@ Finally, you must manually download the official labels and LiDAR data to comple
 3. Extract and place these files into your `multiview_kitti` folder.
 
 
-### KITTI Training
+## KITTI Training
 
 To train the KITTI models, choose and customize a configuration file from the `config` folder.  
 Then, provide the path to this configuration file and run:
@@ -74,5 +74,6 @@ conda install anaconda::cudatoolkit==11.8.0
 conda install -c conda-forge gcc_linux-64=11 gxx_linux-64=11
 cd iou_utils/cuda_op
 uv pip install --no-build-isolation .
-uv pip install pytorch-lightning lightning scipy matplotlib tensorboard fire open3d opencv-python
+uv pip install pytorch-lightning lightning scipy matplotlib tensorboard fire open3d opencv-python jupyterlab scikit-image numba
+uv pip install --no-build-isolation git+https://github.com/facebookresearch/detectron2.git
 ```

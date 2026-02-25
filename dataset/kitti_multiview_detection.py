@@ -30,6 +30,7 @@ class KittiMultiviewDataset(Dataset):
         self.transform = transform
         self.data_dir = dataset_dir
         self.training = training
+        self.cfg = cfg
 
         self.calib_dir = os.path.join(self.data_dir, "data_object_calib/training/calib")
         self.annotations_dir = os.path.join(self.data_dir, "data_object_label_2/training/label_2")
@@ -50,22 +51,22 @@ class KittiMultiviewDataset(Dataset):
         self.__classes =  {'Car': 0, 'Van': 1, 'Truck': 2, 'Pedestrian': 3, 'Person_sitting': 4, 'Cyclist': 5, 'Tram': 6, 'Misc': 7, 'DontCare': 8}
 
         ## read train split from txt file
-        with open(os.path.join("/home/dennis/git_repos/multiview_detection_v3/eval_detection/eval_files/split/train.txt"), "r") as f:
+        with open(os.path.join(self.cfg["abs_repo_path"], "config/kitti_config/train.txt"), "r") as f:
             self.train_list = f.read().splitlines()
         
         ## read valid split from txt file
         if self.training == "valid":
-            with open(os.path.join("/home/dennis/git_repos/multiview_detection_v3/eval_detection/eval_files/split/val.txt"), "r") as f:
+            with open(os.path.join(self.cfg["abs_repo_path"], "config/kitti_config/val.txt"), "r") as f:
                 self.valid_list = f.read().splitlines()
         elif self.training == "valid_valid":
-            with open(os.path.join("/home/dennis/git_repos/multiview_detection_v3/eval_detection/eval_files/split/val_val_split.txt"), "r") as f:
+            with open(os.path.join(self.cfg["abs_repo_path"], "config/kitti_config/val_val.txt"), "r") as f:
                 self.valid_list = f.read().splitlines()
 
         if self.training == "test":
-            with open(os.path.join("/home/dennis/git_repos/multiview_detection_v3/eval_detection/eval_files/split/val.txt"), "r") as f:
+            with open(os.path.join(self.cfg["abs_repo_path"], "config/kitti_config/val.txt"), "r") as f:
                 self.test_list = f.read().splitlines()
         elif self.training == "valid_test":
-            with open(os.path.join("/home/dennis/git_repos/multiview_detection_v3/eval_detection/eval_files/split/val_test_split.txt"), "r") as f:
+            with open(os.path.join(self.cfg["abs_repo_path"], "config/kitti_config/val_test.txt"), "r") as f:
                 self.test_list = f.read().splitlines()
 
         
