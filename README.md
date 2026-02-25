@@ -76,4 +76,5 @@ cd iou_utils/cuda_op
 uv pip install --no-build-isolation .
 uv pip install pytorch-lightning lightning scipy matplotlib tensorboard fire open3d opencv-python jupyterlab scikit-image numba
 uv pip install --no-build-isolation git+https://github.com/facebookresearch/detectron2.git
+uv pip install .
 ```

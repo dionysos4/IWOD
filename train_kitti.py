@@ -1,4 +1,4 @@
-from dataset import kitti_multiview_detection as kmd
+from iwod.dataset import kitti_multiview_detection as kmd
 import torch
 import torchvision
 from utils.transforms import *
@@ -9,7 +9,7 @@ from lightning.pytorch import seed_everything
 from lightning.pytorch.loggers import TensorBoardLogger
 from lightning.pytorch.callbacks import EarlyStopping
 import os
-from model.lightning_module import LitPSDepth
+from iwod.model.lightning_module import LitPSDepth
 import yaml
 import argparse
 

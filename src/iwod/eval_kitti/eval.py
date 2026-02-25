@@ -5,7 +5,7 @@ import numba
 import numpy as np
 from scipy.interpolate import interp1d
 
-from eval_kitti.rotate_iou import rotate_iou_gpu_eval
+from iwod.eval_kitti.rotate_iou import rotate_iou_gpu_eval
 
 
 def get_mAP(prec):

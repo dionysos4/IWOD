@@ -1,7 +1,7 @@
 import lightning as L
 import torch
-from model.submodules import *
-from model.loss import SimpleScoreLoss
+from iwod.model.submodules import *
+from iwod.model.loss import SimpleScoreLoss
 
 
 class LitPSDepth(L.LightningModule):

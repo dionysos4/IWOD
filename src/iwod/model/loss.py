@@ -6,8 +6,8 @@ from typing import Optional
 from torch import Tensor
 from torchvision.ops import sigmoid_focal_loss
 from typing import List
-from model.submodules import PSCoder
-from iou_utils.oriented_iou_loss import cal_diou
+from iwod.model.submodules import PSCoder
+from iwod.iou_utils.oriented_iou_loss import cal_diou
 
 
 def compute_locations_bev(Z_MIN, Z_MAX, VOXEL_Z_SIZE, X_MIN, X_MAX, VOXEL_X_SIZE, device):

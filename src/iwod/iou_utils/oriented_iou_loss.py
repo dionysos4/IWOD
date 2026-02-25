@@ -1,7 +1,7 @@
 import torch
 import numpy as np
-from iou_utils.box_intersection_2d import oriented_box_intersection_2d
-from iou_utils.min_enclosing_box import smallest_bounding_box
+from iwod.iou_utils.box_intersection_2d import oriented_box_intersection_2d
+from iwod.iou_utils.min_enclosing_box import smallest_bounding_box
 
 def box2corners_th(box:torch.Tensor)-> torch.Tensor:
     """convert box coordinate to corners
