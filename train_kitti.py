@@ -1,7 +1,7 @@
 from iwod.dataset import kitti_multiview_detection as kmd
 import torch
 import torchvision
-from utils.transforms import *
+from iwod.utils.transforms import *
 from torch.utils.data import DataLoader
 import lightning as L
 from lightning.pytorch.callbacks import ModelCheckpoint, Callback

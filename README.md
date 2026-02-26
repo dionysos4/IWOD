@@ -64,6 +64,12 @@ Then, provide the path to this configuration file and run:
 python train_kitti.py --config_path <path/to/your/config.yaml>
 ```
 
+## KITTI Evaluation
+
+To evaluate your model's performance on the KITTI dataset, you can use the provided documentation and scripts in the `notebooks` directory.
+* **Checkpoint Evaluation:** The notebook `eval_cam2_cam0.ipynb` demonstrates how to load a saved checkpoint and run an evaluation specifically for two cameras (Cam2 and Cam0).
+* **Quick Start:** Simply open the notebook, point to your checkpoint path, and run the cells to generate performance metrics.
+
 ## Installation
 ```bash
 conda create --name iwod python==3.11
@@ -77,4 +83,18 @@ uv pip install --no-build-isolation .
 uv pip install pytorch-lightning lightning scipy matplotlib tensorboard fire open3d opencv-python jupyterlab scikit-image numba
 uv pip install --no-build-isolation git+https://github.com/facebookresearch/detectron2.git
 uv pip install .
+```
+
+
+## Citation
+
+```bibtex
+@InProceedings{Griesser_2026_WACV,
+    author    = {Griesser, Dennis and Goldluecke, Bastian and Franz, Matthias O. and Umlauf, Georg},
+    title     = {A Deep Network for Object Detection on Inland Waters},
+    booktitle = {Proceedings of the IEEE/CVF Winter Conference on Applications of Computer Vision (WACV)},
+    month     = {March},
+    year      = {2026},
+    pages     = {6590-6599}
+}
 ```
