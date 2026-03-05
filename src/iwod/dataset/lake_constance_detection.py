@@ -1,4 +1,5 @@
 import os
+from sklearn import pipeline
 from torch.utils.data import Dataset
 import numpy as np
 import matplotlib.pyplot as plt
@@ -9,6 +10,7 @@ import torch
 import sys
 import copy
 from tqdm import tqdm
+from iwod.utils.waterplane import TPlaneCamEstimator
 
 
 class LCDDataset(Dataset):
@@ -52,6 +54,7 @@ class LCDDataset(Dataset):
         self.right_img_list = sorted(os.listdir(self.right_img_dir))
         self.depth_list = sorted(os.listdir(self.depth_dir))
 
+
         self.K_l = {}
         self.K_r = {}
         self.D_l = {}
@@ -74,8 +77,10 @@ class LCDDataset(Dataset):
         
         self.__metadata_to_ram()
         self.water_detection = water_detection
+        # if water_detection:
+        #     self.detected_Tr_plane_cam = self.get_estimated_transformations()
         if water_detection:
-            self.detected_Tr_plane_cam = self.get_estimated_transformations()
+            self.T_plane_cam_estimator = TPlaneCamEstimator()
 
 
     def __len__(self):
@@ -137,7 +142,9 @@ class LCDDataset(Dataset):
 
         # Tr_plane_cam
         if self.water_detection:
-            Tr_plane_cam_hom = self.detected_Tr_plane_cam[idx]
+            #Tr_plane_cam_hom = self.detected_Tr_plane_cam[idx]
+            Tr_plane_cam_hom = self.T_plane_cam_estimator.estimate_T_plane_cam(K_l, K_r, np.array([0,0,0,0,0]), np.array([0,0,0,0,0]), 
+                                                         R_l, R_r, P_l, P_r, img_l, img_r)
         else:
             Tr_plane_cam_hom = self.Tr_plane_cam[file_key]
 
@@ -272,170 +279,8 @@ class LCDDataset(Dataset):
         depth_img[pc_in_img[:,1], pc_in_img[:,0]] = z
 
         return depth_img
-    
 
-    def get_estimated_transformations(self):
-        estimated_transform = []
-        for idx in tqdm(range(len(self.left_img_list))):
-            left_img_file = self.left_img_list[idx]
-            right_img_file = self.right_img_list[idx]
-            if left_img_file != right_img_file:
-                raise Exception("Left and right image do not match")
-            depth_file = self.depth_list[idx]
-            file_key = left_img_file.split(".")[0]
-            left_img_path = os.path.join(self.left_img_dir, left_img_file)
-            right_img_path = os.path.join(self.right_img_dir, right_img_file)
-            depth_path = os.path.join(self.depth_dir, depth_file)
 
-            img_l = plt.imread(left_img_path)[:,:,:3]
-            img_r = plt.imread(right_img_path)[:,:,:3]
-
-            K_l = self.K_l[file_key]
-            K_r = self.K_r[file_key]
-            D_l = self.D_l[file_key]
-            D_r = self.D_r[file_key]
-            R_l = self.R_l[file_key]
-            R_r = self.R_r[file_key]
-            P_l = self.P_l[file_key]
-            P_r = self.P_r[file_key]
-
-            water_detection = WaterDetectionStereo(img_l, img_r, K_l, K_r, R_l, R_r, P_l, P_r)
-            Tr_plane_cam_hom = water_detection.get_Tr_plane_cam(mindisparity=0, num_disparities=96, block_size=3, z_clip=100)
-            estimated_transform.append(Tr_plane_cam_hom)
-
-        return estimated_transform
-
-# a = LCDDataset("/mnt/deepdoubt/dennis_data/extracted_dataset_factor_1", "train", None)
+# a = LCDDataset("/mnt/deepdoubt/dennis_data/extracted_dataset_factor_2", "train", None, water_detection=True)
 # c = a[0]
 # b = 1
-
-class WaterDetectionStereo:
-    """ Stereo depth computation for water detection
-    """
-    def __init__(self, left_img, right_img, K_l, K_r, R_l, R_r, P_l, P_r):
-        """
-        Parameters
-        ----------
-        left_img : np.array
-            left undistorted image of the stereo pair
-        right_img : np.array
-            right undistorted image of the stereo pair
-        K_l : np.array
-            camera matrix of the left camera
-        K_r : np.array
-            camera matrix of the right camera
-        R_l : np.array
-            rotation matrix of the left camera
-        R_r : np.array
-            rotation matrix of the right camera
-        P_l : np.array
-            projection matrix of the left camera
-        P_r : np.array
-            projection matrix of the right camera
-        """
-        self.left_img = left_img
-        self.right_img = right_img
-        self.K_l = K_l
-        self.K_r = K_r
-        self.R_l = R_l
-        self.R_r = R_r
-        self.P_l = P_l
-        self.P_r = P_r
-
-        self.left_img_rect = None
-        self.right_img_rect = None
-
-        resnet34 = models.resnet34(weights=models.ResNet34_Weights.DEFAULT)
-        res_model = ResNet(resnet34)
-        self.model = FCN8s(res_model, 1).to("cuda:0")
-        self.model.load_state_dict(torch.load("/home/dennis/git_repos/multiview_detection_v3/baseline/segmentation/ResNet34_Enc_Dec_Misc_Constance", weights_only=True))
-        self.model.eval()
-
-
-    def compute_depth(self, mindisparity=0, num_disparities=96, block_size=3, z_clip=250):
-
-        h, w = self.left_img.shape[:2]
-        map1, map2 = cv2.initUndistortRectifyMap(self.K_l, None, self.R_l, self.P_l[:3,:3], (w, h), cv2.CV_32FC1)
-        self.left_img_rect = cv2.remap(self.left_img, map1, map2, cv2.INTER_LINEAR)
-        left_img_rect_gray = cv2.cvtColor(self.left_img_rect, cv2.COLOR_RGB2GRAY)
-        left_img_rect_gray = (left_img_rect_gray * 255).astype(np.uint8)
-
-
-        h, w = self.right_img.shape[:2]
-        map1, map2 = cv2.initUndistortRectifyMap(self.K_r, None, self.R_r, self.P_r[:3,:3], (w, h), cv2.CV_32FC1)
-        self.right_img_rect = cv2.remap(self.right_img, map1, map2, cv2.INTER_LINEAR)
-        right_img_rect_gray = cv2.cvtColor(self.right_img_rect, cv2.COLOR_RGB2GRAY)
-        right_img_rect_gray = (right_img_rect_gray * 255).astype(np.uint8)
-
-
-        stereo = cv2.StereoSGBM_create(minDisparity=mindisparity,
-                                numDisparities=num_disparities,
-                                blockSize=block_size,
-                                preFilterCap=31,
-                                P1=200,
-                                P2=400,
-                                disp12MaxDiff=5,
-                                uniquenessRatio=15,
-                                speckleWindowSize=100,
-                                speckleRange=4)
-
-        disparity = stereo.compute(left_img_rect_gray, right_img_rect_gray)
-
-        # create Q matrix for reprojecting disparity to 3D points
-        Tx = self.P_r[0, 3] / self.P_r[0, 0]  # baseline / focal length
-        Q = np.array([[1, 0, 0, -self.P_l[0, 2]],
-                    [0, 1, 0, -self.P_l[1, 2]],
-                    [0, 0, 0, self.P_l[0, 0]],
-                    [0, 0, -1 / Tx, 0]])
-        disparity = disparity / 16.0
-        disparity = disparity.astype("float32")
-        pc_img = cv2.reprojectImageTo3D(disparity, Q)
-        inf_mask_x = np.isfinite(pc_img[:,:,0])
-        inf_mask_y = np.isfinite(pc_img[:,:,1])
-        inf_mask_z = np.isfinite(pc_img[:,:,2])
-        z_mask = (pc_img[:,:,2] > 0) & (pc_img[:,:,2] < z_clip)
-        inf_mask = inf_mask_x & inf_mask_y & inf_mask_z & z_mask
-        pc_img[~inf_mask] = 0
-        local_left_img = copy.copy(self.left_img_rect)
-        local_left_img[~inf_mask] = 0
-
-        disp_rgb_img = np.concatenate((pc_img, local_left_img), axis=2)
-        return disp_rgb_img
-    
-
-    def get_water_mask(self, threshold=0.5):
-        """Predicts the water mask using a pre-trained model."""
-        mean = [0.4454203248023987, 0.4749860167503357, 0.4680652916431427]
-        std =  [0.2575828433036804, 0.2523757517337799, 0.2858140468597412]
-        
-        h, w = self.left_img_rect.shape[:2]
-
-        # Transformation to normalize and unnormalize input images
-        norm = transforms.Normalize(mean, std)
-        to_tensor = transforms.ToTensor()
-        input_tensor = norm(to_tensor(self.left_img_rect)).to("cuda:0")
-        # pad hight that it is divisible by 32
-        if input_tensor.shape[1] % 32 != 0:
-            padding = (0, 0, 0, 32 - (input_tensor.shape[1] % 32))
-            input_tensor = torch.nn.functional.pad(input_tensor, padding)
-        with torch.no_grad():
-            water_mask = torch.nn.functional.sigmoid(self.model(input_tensor.unsqueeze(0).float()))
-        water_mask = (water_mask > threshold).float()
-        water_mask = water_mask.squeeze().cpu().numpy()
-        water_mask = water_mask[:h, :w]  # Crop to original size
-        water_mask = water_mask.astype(np.bool_)
-        return water_mask
-    
-
-    def get_Tr_plane_cam(self, mindisparity=0, num_disparities=96, block_size=3, z_clip=250):
-        depth_img = self.compute_depth(mindisparity=mindisparity, num_disparities=num_disparities, block_size=block_size, z_clip=z_clip)
-        water_mask = self.get_water_mask(threshold=0.5)
-        
-        water_points = depth_img[water_mask]
-        # remove all points where sum of the coordinates is 0
-        water_points = water_points[np.sum(water_points[:, :3], axis=1) != 0]
-        # fit a plane to the water points
-        fit_plane_normal, support_point, inliers = helper.fit_plane(water_points, residual_threshold=0.1, max_trials=1000)
-        self.Tr_plane_cam = helper.get_T_plane_cam(fit_plane_normal, support_point)
-        return self.Tr_plane_cam.astype("float32")
-    
