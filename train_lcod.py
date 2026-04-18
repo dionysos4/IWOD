@@ -10,15 +10,10 @@ from lightning.pytorch.loggers import TensorBoardLogger
 from lightning.pytorch.callbacks import EarlyStopping
 import os
 from iwod.model.lightning_module import LitPSDepth
+from iwod.utils.helper import load_config
 import yaml
 import argparse
 
-
-# Function to load yaml configuration file
-def load_config(config_file):
-    with open(config_file) as file:
-        config = yaml.safe_load(file)
-    return config
 
 
 def main():

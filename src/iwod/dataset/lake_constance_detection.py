@@ -142,7 +142,7 @@ class LCDDataset(Dataset):
 
         # Tr_plane_cam
         if self.water_detection:
-            #Tr_plane_cam_hom = self.detected_Tr_plane_cam[idx]
+            # raw_images are already undistorted, so we can set distortion coefficients to zero
             Tr_plane_cam_hom = self.T_plane_cam_estimator.estimate_T_plane_cam(K_l, K_r, np.array([0,0,0,0,0]), np.array([0,0,0,0,0]), 
                                                          R_l, R_r, P_l, P_r, img_l, img_r)
         else:

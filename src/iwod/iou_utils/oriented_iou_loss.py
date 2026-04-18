@@ -243,11 +243,11 @@ def eigenvector_22(x:torch.Tensor):
     v2 = v2 / n2
     return v1.float(), v2.float()
 
-if __name__ == "__main__":
-    box3d1 = np.array([0,0,0,3,3,3,0])
-    box3d2 = np.array([1,1,1,2,2,2,np.pi/3])
-    tensor1 = torch.FloatTensor(box3d1).unsqueeze(0).unsqueeze(0).cuda()
-    tensor2 = torch.FloatTensor(box3d2).unsqueeze(0).unsqueeze(0).cuda()
-    giou_loss, iou = cal_giou_3d(tensor1, tensor1)
-    print(giou_loss)
-    print(iou)
+# if __name__ == "__main__":
+#     box3d1 = np.array([0,0,0,3,3,3,0])
+#     box3d2 = np.array([1,1,1,2,2,2,np.pi/3])
+#     tensor1 = torch.FloatTensor(box3d1).unsqueeze(0).unsqueeze(0).cuda()
+#     tensor2 = torch.FloatTensor(box3d2).unsqueeze(0).unsqueeze(0).cuda()
+#     giou_loss, iou = cal_giou_3d(tensor1, tensor1)
+#     print(giou_loss)
+#     print(iou)

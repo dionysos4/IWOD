@@ -39,7 +39,7 @@ def pixel2cam(depth, intrinsics_inv):
     b, h, w = depth.size()
     if (pixel_coords is None) or pixel_coords.size(2) < h:
         set_id_grid(depth)
-    current_pixel_coords = pixel_coords[:,:,:h,:w].expand(b,3,h,w).contiguous().view(b, 3, -1).cuda()  # [B, 3, H*W]
+    current_pixel_coords = pixel_coords[:,:,:h,:w].expand(b,3,h,w).contiguous().view(b, 3, -1)  # [B, 3, H*W]
     cam_coords = intrinsics_inv.bmm(current_pixel_coords).view(b, 3, h, w)
     return cam_coords * depth.unsqueeze(1)
 
@@ -103,7 +103,6 @@ def inverse_warp(feat, depth, pose, intrinsics, intrinsics_inv, padding_mode='ze
     cam_coords = pixel2cam(depth, intrinsics_inv) 
 
     pose_mat = pose
-    pose_mat = pose_mat.cuda()
 
     # Get projection matrix for tgt camera frame to source pixel frame
     proj_cam_to_src_pixel = intrinsics.bmm(pose_mat)  # [B, 3, 4]
