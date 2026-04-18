@@ -24,7 +24,14 @@ python train_lcod.py --config_path <path/to/your/config.yaml>
 ```
 
 ## Inland Water Evaluation
-To evaluate your model's performance on the LCOD dataset, you can use the script `evaluate.py` provided in the root directory. This script will compute the MeanCentroidError, AverageScaleError, AverageorientationError and Average Precision (AP) metric for your trained model.
+To evaluate your model's performance on the **LCOD dataset**, use the provided `evaluate.py` script.
+
+This script computes the following metrics:
+
+- **Mean Centroid Error**
+- **Average Scale Error**
+- **Average Orientation Error**
+- **Average Precision (AP)**
 ```bash
 python evaluate.py --config_path <path/to/your/config.yaml> --ckpt_path <path/to/your/model_checkpoint.ckpt> --dataset_path <path/to/your/dataset>
 ```
