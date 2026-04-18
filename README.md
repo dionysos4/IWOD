@@ -1,5 +1,7 @@
 # A Deep Network for Object Detection on Inland Waters
 
+This is the official code repository for the paper "A Deep Network for Object Detection on Inland Waters", published at WACV 2026. 
+
 ## Lake Constance Obstacle Detection Dataset Preparation
 Follow these steps to set up the Lake Constance Obstacle Detection (LCOD) dataset and initiate the training pipeline.
 
