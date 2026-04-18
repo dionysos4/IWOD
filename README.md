@@ -33,7 +33,7 @@ This script computes the following metrics:
 - **Average Orientation Error**
 - **Average Precision (AP)**
 ```bash
-python evaluate.py --config_path <path/to/your/config.yaml> --ckpt_path <path/to/your/model_checkpoint.ckpt> --dataset_path <path/to/your/dataset>
+python evaluate.py --config_path <path/to/your/config.yaml> --ckpt_path <path/to/your/model_checkpoint.ckpt>
 ```
 
 ## KITTI Dataset Preparation (Multiview & Unrectified)

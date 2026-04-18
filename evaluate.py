@@ -8,15 +8,13 @@ import argparse
 def main():
     parser = argparse.ArgumentParser()
 
-    parser.add_argument("--dataset_path", help="Path to the dataset", default="/mnt/deepdoubt/dennis_data/extracted_dataset_factor_2_new_split")
     parser.add_argument("--config_path", help="Path to the config file", default="/home/dennis/git_repos/IWOD/config/train_lcod.yaml")
     parser.add_argument("--ckpt_path", help="Path to the checkpoint file", default="/mnt/deepdoubt/dennis_data/logging/kitti_stereo/1052/lcod-epoch=81-train_loss=0.00.ckpt")
     args = parser.parse_args()
-    DATASET_PATH = args.dataset_path
     CONFIG_PATH = args.config_path
     CKPT_PATH = args.ckpt_path
 
-    predictor = Predictor(DATASET_PATH, CONFIG_PATH, CKPT_PATH, gpu_id=2, water_detection=True)
+    predictor = Predictor(CONFIG_PATH, CKPT_PATH, gpu_id=2, water_detection=True)
 
     all_detected_boxes = []
     all_gt_boxes = []

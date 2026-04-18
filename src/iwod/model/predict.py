@@ -11,10 +11,9 @@ from iwod.utils.helper import load_config
 
 class Predictor:
     """This class encapsulates the entire prediction pipeline, including data loading, model inference, and post-processing."""
-    def __init__(self, dataset_path, config_path, checkpoint_path, gpu_id=0, water_detection=False, custom_T_plane_cam=None):
+    def __init__(self, config_path, checkpoint_path, gpu_id=0, water_detection=False, custom_T_plane_cam=None):
         """
         Args:
-            dataset_path (str): Path to the dataset.
             config_path (str): Path to the model configuration file.
             checkpoint_path (str): Path to the trained model checkpoint.
             gpu_id (int): ID of the GPU to use for inference.
@@ -26,6 +25,7 @@ class Predictor:
         
         # 2. Load Config
         self.cfg = load_config(config_path)
+        dataset_path = self.cfg["data_directory"]
         
         # 3. Setup Transform & Dataset
         transform = torchvision.transforms.Compose([
