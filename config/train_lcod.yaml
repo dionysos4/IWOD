@@ -22,7 +22,7 @@ batch_size: 1
 # LOGGER
 log_root_dir: "/mnt/deepdoubt/dennis_data/logging"
 log_dir: "lcod"
-log_version: "50200"
+log_version: "3001"
 
 # LOSS PARAMETERS
 beta1: 0.3
@@ -50,7 +50,7 @@ x_size: 0.25
 # TRAINING
 accelorator: "gpu"
 num_nodes: 1
-gpu_devices: [2,3]
+gpu_devices: [0,1,2,3]
 strategy: "ddp"
 precision: "32"
 max_epochs: -1

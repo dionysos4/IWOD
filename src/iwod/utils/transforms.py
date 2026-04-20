@@ -459,3 +459,40 @@ class ImageFreeze(torch.nn.Module):
                 img_r_list[selected_cam-1] = self.__insert_new_img(img_r_list[selected_cam-1], img_new)
 
         return (img_l, img_r_list, sample[0][2], sample[0][3], sample[0][4]), sample[1], sample[2]
+    
+    
+class TCamPlaneNoise(torch.nn.Module):
+    """
+    random noise to the T_cam_plane for variations in sampling
+    """
+    def __call__(self, sample):
+        
+        #  sample = (img_l, img_targets, transform_mats, K_list, K_ref_inv, Tr_cam_plane_hom), (depth_img_left, depth_img_right), annotations
+        Tr_cam_plane_hom = sample[0][5]
+        Rot = Tr_cam_plane_hom[:3,:3]
+        R_plane_cam = Rot.T
+        ## noise to rotation
+        annotations = sample[2]
+        # find annotations with largest depth
+        max_depth_idx = np.argmax(annotations[:,3])
+        max_depth = annotations[max_depth_idx,3]
+        # max x displacemen == 1.5m, max y displacement == 0.7m
+        max_angle_yaw = np.arctan(1.5/max_depth)
+        max_angle_pitch = np.arctan(0.7/max_depth)
+        noise_yaw = np.random.uniform(-max_angle_yaw, max_angle_yaw)
+        noise_pitch = np.random.uniform(-max_angle_pitch, max_angle_pitch)
+        R_noise_yaw = np.array([[np.cos(noise_yaw), 0, np.sin(noise_yaw)],
+                                [0, 1, 0],
+                                [-np.sin(noise_yaw), 0, np.cos(noise_yaw)]])
+        R_noise_pitch = np.array([[1, 0, 0],
+                                [0, np.cos(noise_pitch), -np.sin(noise_pitch)],
+                                [0, np.sin(noise_pitch), np.cos(noise_pitch)]])
+        # apply noise to rotation
+        # decide with 0.5 probability if yaw noise or pitch noise should be applied
+        if np.random.rand() <= 0.5:
+            R_plane_cam = R_noise_yaw @ R_plane_cam
+        else:
+            R_plane_cam = R_noise_pitch @ R_plane_cam
+        Tr_cam_plane_hom[:3,:3] = R_plane_cam.T
+
+        return (sample[0][0], sample[0][1], sample[0][2], sample[0][3], sample[0][4], Tr_cam_plane_hom), sample[1], sample[2]

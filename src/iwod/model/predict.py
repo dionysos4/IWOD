@@ -11,7 +11,7 @@ from iwod.utils.helper import load_config
 
 class Predictor:
     """This class encapsulates the entire prediction pipeline, including data loading, model inference, and post-processing."""
-    def __init__(self, config_path, checkpoint_path, gpu_id=0, water_detection=False, custom_T_plane_cam=None):
+    def __init__(self, config_path, checkpoint_path, gpu_id=0, water_detection=False, custom_T_plane_cam=None, training="test"):
         """
         Args:
             config_path (str): Path to the model configuration file.
@@ -19,6 +19,7 @@ class Predictor:
             gpu_id (int): ID of the GPU to use for inference.
             water_detection (bool): Whether to enable water detection mode.
             custom_T_plane_cam (torch.Tensor, optional): Custom transformation from plane to camera coordinates. If None, it will be loaded from the dataset or estimated if water_detection is True.
+            training (str): Whether to run the datset in training, valid or test mode.
         """
         # 1. Setup Device
         self.device = torch.device(f"cuda:{gpu_id}" if torch.cuda.is_available() else "cpu")
@@ -36,7 +37,7 @@ class Predictor:
             PadImages((self.cfg["pad_image_h"], self.cfg["pad_image_w"])),
             ToTensor()
         ])
-        self.dataset = lcod.LCDDataset(dataset_path, "test", transform=transform, water_detection=water_detection)
+        self.dataset = lcod.LCDDataset(dataset_path, training, transform=transform, water_detection=water_detection)
         
         # 4. Load Model
         self.model = LitPSDepth.load_from_checkpoint(checkpoint_path)

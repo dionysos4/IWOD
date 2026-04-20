@@ -25,8 +25,14 @@ Then, provide the path to this configuration file and run:
 python train_lcod.py --config_path <path/to/your/config.yaml>
 ```
 
+## Inland Water Evaluation (Checkpoint)
+To evaluate your model's performance on the **LCOD validation dataset** using saved checkpoints, use the provided `eval_ckpts.py` script. This script iterates through all checkpoints in the specified directory, evaluates each checkpoint on the validation set, and saves the results in a specified output file and plots the mAP.
+```bash
+python eval_ckpts.py --config_path <path/to/your/config.yaml> --ckpt_path <path/to/your/checkpoints_directory> --output_path <path/to/save/evaluation_results.npy>
+```
+
 ## Inland Water Evaluation
-To evaluate your model's performance on the **LCOD dataset**, use the provided `evaluate.py` script.
+To evaluate your model's performance on the **LCOD test dataset**, use the provided `evaluate.py` script.
 
 This script computes the following metrics:
 

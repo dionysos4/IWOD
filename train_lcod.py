@@ -35,6 +35,7 @@ def main():
                                             means=cfg["mean_target"],
                                             stds=cfg["std_target"]),
                                             PadImages((cfg["pad_image_h"], cfg["pad_image_w"])),
+                                            torchvision.transforms.RandomApply([TCamPlaneNoise()], p=0.5),
                                             ToTensor()])
 
     train_dataset = lcod.LCDDataset(cfg["data_directory"], "train", transform=transform_train, depth=cfg["depth_type"])
